@@ -1,0 +1,21 @@
+name: Limpieza única de ramas
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/cleanup-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Eliminar ramas antiguas tras cerrar PRs
+        shell: bash
+        run: |
+          git fetch origin --prune
+          git push origin --delete 'dependabot/gradle/gradle-dependencies-55f7eb60d2'
