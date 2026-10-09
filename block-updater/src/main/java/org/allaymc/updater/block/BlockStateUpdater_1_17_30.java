@@ -1,0 +1,20 @@
+package org.allaymc.updater.block;
+
+import org.allaymc.updater.block.context.BlockUpdaterContext;
+
+/**
+ * @author IWareQ
+ */
+public class BlockStateUpdater_1_17_30 extends BlockStateUpdater {
+    public static final BlockStateUpdater INSTANCE = new BlockStateUpdater_1_17_30();
+
+    private BlockStateUpdater_1_17_30() {
+        super(1, 17, 30);
+    }
+
+    @Override
+    public void registerUpdaters(BlockUpdaterContext context) {
+        context.addProperty("minecraft:frame", "item_frame_photo_bit", (byte) 0);
+        context.addProperty("minecraft:glow_frame", "item_frame_photo_bit", (byte) 0);
+    }
+}
