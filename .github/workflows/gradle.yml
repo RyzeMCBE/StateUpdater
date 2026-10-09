@@ -1,0 +1,55 @@
+name: StateUpdater · Compilación
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stateupdater-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compilar y probar (Java 21)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Validar Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Compilar y ejecutar pruebas
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build --no-daemon
+
+      - name: Guardar JAR de StateUpdater
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ryzemcbe-stateupdater-${{ github.sha }}
+          path: |
+            common/build/libs/*.jar
+            block-updater/build/libs/*.jar
+            item-updater/build/libs/*.jar
+          if-no-files-found: error
+          retention-days: 14
