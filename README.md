@@ -1,13 +1,76 @@
-# StateUpdater
+<div align="center">
 
-![Block Updater](https://img.shields.io/maven-central/v/org.allaymc.stateupdater/block-updater?label=block-updater)
-![Item Updater](https://img.shields.io/maven-central/v/org.allaymc.stateupdater/item-updater?label=item-updater)
+# 🧱 StateUpdater · RyzeMCBE
 
-Extracted state mappings from the Minecraft: Bedrock Edition used to update state NBT tags to the latest version.
+### Actualización y migración de estados de bloques e ítems de Minecraft Bedrock
 
-All updaters are auto-generated!
+[![Licencia LGPL-3.0](https://img.shields.io/badge/Licencia-LGPL--3.0-blue)](LICENSE)
+[![Java 21](https://img.shields.io/badge/Java-21-orange)](https://github.com/RyzeMCBE/StateUpdater)
+[![Desarrollo](https://img.shields.io/badge/Estado-En%20desarrollo-yellow)](https://github.com/RyzeMCBE/StateUpdater)
 
-### Usage
+[Repositorio](https://github.com/RyzeMCBE/StateUpdater) · [Allay](https://github.com/RyzeMCBE/Allay) · [Protocol](https://github.com/RyzeMCBE/Protocol)
+
+</div>
+
+## 📖 Descripción
+
+**StateUpdater** es una biblioteca que transforma representaciones NBT de bloques e ítems de Minecraft Bedrock entre formatos y versiones utilizando esquemas de migración generados. Esta copia de trabajo pertenece al ecosistema **RyzeMCBE Development Studio** y conserva el reconocimiento a sus autores originales.
+
+Su función es ayudar al servidor a interpretar y actualizar estados de bloques e ítems cuando sus representaciones cambian entre versiones. **No sustituye los codecs de red** de [Protocol](https://github.com/RyzeMCBE/Protocol).
+
+## 📦 Módulos
+
+| Módulo | Propósito |
+| --- | --- |
+| `common` | Componentes compartidos entre los actualizadores. |
+| `block-updater` | Migración de estados NBT de bloques. |
+| `item-updater` | Migración de estados NBT de ítems. |
+| `tools` | Utilidades y recursos adicionales del código fuente. |
+
+Las versiones declaradas en `gradle.properties` del código importado son **common 0.1.1**, **block-updater 1.26.50-G1** e **item-updater 1.26.20-R1**. Esto no significa que el servidor completo haya superado pruebas para todas esas versiones.
+
+## 🔗 Integración con Allay
+
+Allay utiliza bibliotecas de actualización de estados. En el fork RyzeMCBE, este proyecto se incorpora como fuente local mediante un **submódulo Git** y un **build compuesto de Gradle**.
+
+```text
+Allay/
+├── protocol-local/      → RyzeMCBE/Protocol
+├── stateupdater-local/  → RyzeMCBE/StateUpdater
+├── api/
+├── server/
+└── settings.gradle.kts
+```
+
+Para clonar todas las dependencias enlazadas:
+
+```bash
+git clone --recurse-submodules https://github.com/RyzeMCBE/Allay.git
+cd Allay
+git submodule sync --recursive
+git submodule update --init --recursive
+./gradlew build --no-daemon
+```
+
+> [!NOTE]
+> Un submódulo queda fijado a un commit concreto. Los cambios futuros en `main` de StateUpdater **no actualizan automáticamente** la revisión utilizada por Allay. La compatibilidad y las compilaciones deben verificarse antes de desplegar.
+
+## 🛠️ Compilación independiente
+
+Requiere **JDK 21** y las dependencias Gradle del proyecto.
+
+```bash
+git clone https://github.com/RyzeMCBE/StateUpdater.git
+cd StateUpdater
+chmod +x gradlew
+./gradlew build --no-daemon
+```
+
+En Windows, utiliza `gradlew.bat`.
+
+## 🧩 Uso en otros proyectos
+
+Si utilizas artefactos publicados de la línea original:
 
 ```kotlin
 repositories {
@@ -15,62 +78,33 @@ repositories {
 }
 
 dependencies {
-    // block-updater
     implementation("org.allaymc.stateupdater:block-updater:<version>")
-    // item-updater
     implementation("org.allaymc.stateupdater:item-updater:<version>")
 }
 ```
 
-#### Update Item
+Los artefactos de Maven Central pueden diferir de este fork. Para compilar exactamente esta revisión, utiliza el código fuente del repositorio.
 
-```java
-// Update legacy items to new latest items (example for update jungle planks)
-NbtMap updatedNbt = ItemStateUpdaters.updateItemState(
-        NbtMap.builder()
-                .putString("Id", "5")
-                .putInt("Damage", 3) // You can use int, short, long and byte
-                .build(),
-        ItemStateUpdaters.LATEST_VERSION
-);
+## 🧪 Verificación y diagnóstico
 
-// or update new items to latest
-NbtMap updatedNbt = ItemStateUpdaters.updateItemState(
-        NbtMap.builder()
-                .putString("Name", "minecraft:coal")
-                .putInt("Damage", 1) // You can use int, short, long and byte
-                .build(),
-        ItemStateUpdaters.LATEST_VERSION
-);
-```
+Prueba las transformaciones de NBT con datos representativos, los cambios de versión, los runtime IDs y los casos de bloques e ítems antiguos. Una compilación exitosa no certifica por sí sola que todos los datos de mundo sean compatibles.
 
-#### Update Block
+## ⚖️ Licencia y atribuciones
 
-```java
-// Update legacy block
-NbtMap updatedNbt = BlockStateUpdaters.updateBlockState(
-        NbtMap.builder()
-                .putString("name", "minecraft:stone")
-                .putInt("val", 1) // You can use int, short, long and byte
-                .build(),
-        BlockStateUpdaters.LATEST_VERSION
-);
+Se conserva la licencia **[LGPL-3.0](LICENSE)**. Este fork reconoce el trabajo de AllayMC y los proyectos relacionados con los esquemas de migración:
 
-// or update block
-NbtMap updatedNbt = BlockStateUpdaters.updateBlockState(
-        NbtMap.builder()
-                .putString("name", "minecraft:anvil")
-                .putCompound("states", NbtMap.builder()
-                        .putString("damage", "very_damaged")
-                        .putInt("direction", 3)
-                        .build())
-                .build(),
-        BlockStateUpdaters.LATEST_VERSION
-);
-```
+- [BedrockItemUpgradeSchema](https://github.com/pmmp/BedrockItemUpgradeSchema)
+- [BedrockBlockUpgradeSchema](https://github.com/pmmp/BedrockBlockUpgradeSchema)
+- [Cloudburst BlockStateUpdater](https://github.com/CloudburstMC/BlockStateUpdater)
 
-## Acknowledgements
+---
 
-* [BedrockItemUpgradeSchema](https://github.com/pmmp/BedrockItemUpgradeSchema)
-* [BedrockBlockUpgradeSchema](https://github.com/pmmp/BedrockBlockUpgradeSchema)
-* [BlockStateUpdater](https://github.com/CloudburstMC/BlockStateUpdater)
+<div align="center">
+
+**RyzeMCBE Development Studio** · Software e infraestructura para Minecraft Bedrock
+
+[Allay](https://github.com/RyzeMCBE/Allay) · [Protocol](https://github.com/RyzeMCBE/Protocol) · [StateUpdater](https://github.com/RyzeMCBE/StateUpdater)
+
+<sub>Proyecto independiente, sin afiliación con Mojang Studios ni Microsoft.</sub>
+
+</div>
