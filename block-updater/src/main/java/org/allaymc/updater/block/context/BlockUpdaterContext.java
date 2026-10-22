@@ -58,10 +58,26 @@ public class BlockUpdaterContext extends UpdaterContext<BlockUpdater, BlockUpdat
                 .tryEdit(property, helper -> {
                     var oldValue = helper.getTag();
                     var remapValue = Arrays.stream(remaps)
-                            .filter(entry -> entry.oldValue().equals(oldValue))
+                            .filter(entry -> sameRemapValue(entry.oldValue(), oldValue))
                             .findFirst();
                     remapValue.ifPresent(value -> helper.replaceWith(property, value.newValue()));
                 });
+    }
+
+    /**
+     * NBT may encode the same integral state as a byte, short, int, or long.
+     * Match their numeric values without coercing strings, booleans or decimals.
+     */
+    private static boolean sameRemapValue(Object expected, Object actual) {
+        if (isIntegralTag(expected) && isIntegralTag(actual)) {
+            return ((Number) expected).longValue() == ((Number) actual).longValue();
+        }
+        return expected.equals(actual);
+    }
+
+    private static boolean isIntegralTag(Object value) {
+        return value instanceof Byte || value instanceof Short ||
+               value instanceof Integer || value instanceof Long;
     }
 
     public void remapState(String name, String newName, StateEditor... editors) {
