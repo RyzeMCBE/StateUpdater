@@ -40,10 +40,11 @@ public class TagUtils {
             List<Object> list = new ArrayList<>();
             NbtType<?> type = NbtType.END;
             for (Object value : (List<?>) mutable) {
+                var immutableValue = toImmutable(value);
                 if (type == NbtType.END) {
-                    type = NbtType.byClass(value.getClass());
+                    type = NbtType.byClass(immutableValue.getClass());
                 }
-                list.add(toImmutable(value));
+                list.add(immutableValue);
             }
             return new NbtList(type, list);
         }
