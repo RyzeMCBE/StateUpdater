@@ -11,6 +11,38 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class ItemStateUpdaterTest {
     @Test
+    void unknownLegacyNumericIdRemainsUnchanged() {
+        var original = NbtMap.builder()
+                .putInt("Id", 123456789)
+                .putInt("Damage", 7)
+                .build();
+
+        var updated = assertDoesNotThrow(() ->
+                ItemStateUpdaters.updateItemState(original, ItemStateUpdaters.LATEST_VERSION));
+        assertEquals(original, updated);
+    }
+
+    @Test
+    void negativeLegacyNumericIdStillConverts() {
+        var updated = ItemStateUpdaters.updateItemState(
+                NbtMap.builder().putInt("Id", -304).build(),
+                0
+        );
+        assertEquals("minecraft:quartz_bricks", updated.getString("Name"));
+        assertEquals(false, updated.containsKey("Id"));
+    }
+
+    @Test
+    void knownLegacyNumericIdStillConverts() {
+        var updated = ItemStateUpdaters.updateItemState(
+                NbtMap.builder().putInt("Id", 264).build(),
+                ItemStateUpdaters.LATEST_VERSION
+        );
+        assertEquals("minecraft:diamond", updated.getString("Name"));
+        assertEquals(false, updated.containsKey("Id"));
+    }
+
+    @Test
     void remap_meta_for_coal() {
         var result = ItemStateUpdaters.updateItemState(
                 NbtMap.builder()
