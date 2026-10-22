@@ -143,6 +143,57 @@ class BlockStateUpdaterTest {
         assertTrue(tnt1.getCompound("states").isEmpty());
     }
 
+    /**
+     * Legacy imported LevelDB palettes can encode top_slot_bit as BYTE, SHORT,
+     * INT or LONG. Each represents the same Bedrock slab half and must convert
+     * before the legacy slab ID is expanded into its modern block identifier.
+     */
+    @Test
+    void testLegacySlabsPreserveHalfWithIntegralNbtTags() {
+        var slabCases = new String[][]{
+                {"minecraft:stone_slab", "stone_slab_type", "smooth_stone", "minecraft:smooth_stone_slab"},
+                {"minecraft:double_stone_slab", "stone_slab_type", "smooth_stone", "minecraft:smooth_stone_double_slab"},
+                {"minecraft:wooden_slab", "wood_type", "oak", "minecraft:oak_slab"},
+                {"minecraft:double_wooden_slab", "wood_type", "oak", "minecraft:oak_double_slab"}
+        };
+        for (var slab : slabCases) {
+            for (int half = 0; half <= 1; half++) {
+                for (int tagType = 0; tagType < 4; tagType++) {
+                    var states = NbtMap.builder().putString(slab[1], slab[2]);
+                    switch (tagType) {
+                        case 0 -> states.putByte("top_slot_bit", (byte) half);
+                        case 1 -> states.putShort("top_slot_bit", (short) half);
+                        case 2 -> states.putInt("top_slot_bit", half);
+                        case 3 -> states.putLong("top_slot_bit", half);
+                        default -> throw new AssertionError("Unexpected NBT tag type");
+                    }
+
+                    var updated = BlockStateUpdaters.updateBlockState(NbtMap.builder()
+                            .putString("name", slab[0])
+                            .putCompound("states", states.build())
+                            .build(), BlockStateUpdaters.LATEST_VERSION);
+                    assertEquals(slab[3], updated.getString("name"), slab[0]);
+                    assertEquals(half == 0 ? "bottom" : "top",
+                            updated.getCompound("states").getString("minecraft:vertical_half"),
+                            slab[0] + " tag type " + tagType);
+                }
+            }
+        }
+    }
+
+    @Test
+    void testOutOfRangeSlabHalfIsNotCoerced() {
+        var updated = BlockStateUpdaters.updateBlockState(NbtMap.builder()
+                .putString("name", "minecraft:wooden_slab")
+                .putCompound("states", NbtMap.builder()
+                        .putString("wood_type", "oak")
+                        .putInt("top_slot_bit", 2)
+                        .build())
+                .build(), BlockStateUpdaters.LATEST_VERSION);
+        assertEquals("minecraft:oak_slab", updated.getString("name"));
+        assertEquals(2, updated.getCompound("states").getInt("minecraft:vertical_half"));
+    }
+
     @Test
     void testRequiredVersionUpdater() {
         var creakingHeart0 = BlockStateUpdaters.updateBlockState(
