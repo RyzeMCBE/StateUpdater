@@ -34,7 +34,7 @@ public class ItemStateUpdaterBase extends ItemStateUpdater {
     @Override
     public void registerUpdaters(ItemUpdaterContext context) {
         context.addUpdater()
-                .match("Id", "\\d+", true)
+                .match("Id", "-?\\d+", true)
                 .edit("Id", helper -> {
                     var id = Integer.parseInt(helper.getTag().toString());
                     var name = LEGACY_ITEM_IDS.get(id);
