@@ -23,6 +23,16 @@ class ItemStateUpdaterTest {
     }
 
     @Test
+    void negativeLegacyNumericIdStillConverts() {
+        var updated = ItemStateUpdaters.updateItemState(
+                NbtMap.builder().putInt("Id", -304).build(),
+                0
+        );
+        assertEquals("minecraft:quartz_bricks", updated.getString("Name"));
+        assertEquals(false, updated.containsKey("Id"));
+    }
+
+    @Test
     void knownLegacyNumericIdStillConverts() {
         var updated = ItemStateUpdaters.updateItemState(
                 NbtMap.builder().putInt("Id", 264).build(),
