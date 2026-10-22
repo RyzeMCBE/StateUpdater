@@ -16,9 +16,9 @@ class TagUtilsTest {
                 .putString("name", "minecraft:stone")
                 .putInt("count", 3)
                 .build();
-        var original = NbtMap.builder()
-                .put("entries", new NbtList<>(NbtType.COMPOUND, List.of(entry)))
-                .build();
+        var builder = NbtMap.builder();
+        builder.put("entries", new NbtList<>(NbtType.COMPOUND, List.of(entry)));
+        var original = builder.build();
 
         var roundTripped = TagUtils.toImmutable(TagUtils.toMutable(original));
         assertEquals(original, roundTripped);
