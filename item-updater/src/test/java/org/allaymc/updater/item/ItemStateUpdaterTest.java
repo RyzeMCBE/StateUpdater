@@ -11,6 +11,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class ItemStateUpdaterTest {
     @Test
+    void recentItemRenamesRetainStackData() {
+        for (var entry : java.util.Map.of("minecraft:record_bounce", "minecraft:music_disc_bounce",
+                "minecraft:photo", "minecraft:photo_item").entrySet()) {
+            var tag = NbtMap.builder().putString("displayName", "fixture").build();
+            var updated = ItemStateUpdaters.updateItemState(NbtMap.builder().putString("Name", entry.getKey())
+                    .putByte("Count", (byte) 3).putCompound("tag", tag).build(), ItemStateUpdaters.LATEST_VERSION);
+            assertEquals(entry.getValue(), updated.getString("Name"));
+            assertEquals((byte) 3, updated.getByte("Count"));
+            assertEquals(tag, updated.getCompound("tag"));
+        }
+        var boat = ItemStateUpdaters.updateItemState(NbtMap.builder().putString("Name", "minecraft:chest_boat")
+                .putInt("Damage", 10).build(), ItemStateUpdaters.LATEST_VERSION);
+        assertEquals("minecraft:poplar_chest_boat", boat.getString("Name"));
+        assertEquals(0, boat.getInt("Damage"));
+    }
+
+    @Test
     void unknownLegacyNumericIdRemainsUnchanged() {
         var original = NbtMap.builder()
                 .putInt("Id", 123456789)
