@@ -1,4 +1,4 @@
-rootProject.name = "StateUpdater"
+rootProject.name = "EngineStateUpdater"
 
 include("common")
 include("block-updater")
