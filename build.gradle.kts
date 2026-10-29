@@ -86,15 +86,15 @@ subprojects {
         coordinates(project.group.toString(), project.name, project.version.toString())
 
         pom {
-            name.set(project.name)
-            description.set("Updates Minecraft: Bedrock Edition block & item states to the latest version.")
+            name.set("Engine StateUpdater - ${project.name}")
+            description.set("Engine StateUpdater: Bedrock block and item migrations, preserving Allay-compatible APIs.")
             inceptionYear.set("2024")
-            url.set("https://github.com/AllayMC/StateUpdater")
+            url.set("https://github.com/RyzeMCBE/StateUpdater")
 
             scm {
                 connection.set("scm:git:git://github.com/AllayMC/StateUpdater.git")
                 developerConnection.set("scm:git:ssh://github.com/AllayMC/StateUpdater.git")
-                url.set("https://github.com/AllayMC/StateUpdater")
+                url.set("https://github.com/RyzeMCBE/StateUpdater")
             }
 
             licenses {
@@ -105,6 +105,11 @@ subprojects {
             }
 
             developers {
+                developer {
+                    name.set("RyzeMCBE Development Studio")
+                    organization.set("RyzeMCBE")
+                    organizationUrl.set("https://github.com/RyzeMCBE")
+                }
                 developer {
                     name.set("CloudburstMC Team")
                     organization.set("CloudburstMC")
