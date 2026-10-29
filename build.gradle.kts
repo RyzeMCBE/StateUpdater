@@ -92,8 +92,8 @@ subprojects {
             url.set("https://github.com/RyzeMCBE/StateUpdater")
 
             scm {
-                connection.set("scm:git:git://github.com/AllayMC/StateUpdater.git")
-                developerConnection.set("scm:git:ssh://github.com/AllayMC/StateUpdater.git")
+                connection.set("scm:git:git://github.com/RyzeMCBE/StateUpdater.git")
+                developerConnection.set("scm:git:ssh://github.com/RyzeMCBE/StateUpdater.git")
                 url.set("https://github.com/RyzeMCBE/StateUpdater")
             }
 
