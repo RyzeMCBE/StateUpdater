@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧱 StateUpdater · RyzeMCBE
+# Engine StateUpdater · RyzeMCBE
 
 ### Actualización y migración de estados de bloques e ítems de Minecraft Bedrock
 
@@ -8,13 +8,13 @@
 [![Java 21](https://img.shields.io/badge/Java-21-orange)](https://github.com/RyzeMCBE/StateUpdater)
 [![Desarrollo](https://img.shields.io/badge/Estado-En%20desarrollo-yellow)](https://github.com/RyzeMCBE/StateUpdater)
 
-[Repositorio](https://github.com/RyzeMCBE/StateUpdater) · [Allay](https://github.com/RyzeMCBE/Allay) · [Protocol](https://github.com/RyzeMCBE/Protocol)
+[Repositorio](https://github.com/RyzeMCBE/StateUpdater) · [Engine (repositorio actual)](https://github.com/RyzeMCBE/Allay) · [Protocol](https://github.com/RyzeMCBE/Protocol)
 
 </div>
 
 ## 📖 Descripción
 
-**StateUpdater** es una biblioteca que transforma representaciones NBT de bloques e ítems de Minecraft Bedrock entre formatos y versiones utilizando esquemas de migración generados. Esta copia de trabajo pertenece al ecosistema **RyzeMCBE Development Studio** y conserva el reconocimiento a sus autores originales.
+**Engine StateUpdater** es una biblioteca que transforma representaciones NBT de bloques e ítems de Minecraft Bedrock entre formatos y versiones utilizando esquemas de migración generados. Esta copia de trabajo pertenece al ecosistema **RyzeMCBE Development Studio** y conserva el reconocimiento a sus autores originales.
 
 Su función es ayudar al servidor a interpretar y actualizar estados de bloques e ítems cuando sus representaciones cambian entre versiones. **No sustituye los codecs de red** de [Protocol](https://github.com/RyzeMCBE/Protocol).
 
@@ -27,9 +27,12 @@ Su función es ayudar al servidor a interpretar y actualizar estados de bloques 
 | `item-updater` | Migración de estados NBT de ítems. |
 | `tools` | Utilidades y recursos adicionales del código fuente. |
 
+
+> **Compatibilidad binaria:** Engine StateUpdater conserva los módulos `common`, `block-updater` e `item-updater`, el grupo Maven `org.allaymc.stateupdater` y las APIs de migración existentes. Cambiar su identidad pública no altera los formatos NBT de mundos ni los datos guardados.
+
 Las versiones declaradas en `gradle.properties` del código importado son **common 0.1.1**, **block-updater 1.26.50-G1** e **item-updater 1.26.20-R1**. Esto no significa que el servidor completo haya superado pruebas para todas esas versiones.
 
-## 🔗 Integración con Allay
+## 🔗 Integración con Engine
 
 Allay utiliza bibliotecas de actualización de estados. En el fork RyzeMCBE, este proyecto se incorpora como fuente local mediante un **submódulo Git** y un **build compuesto de Gradle**.
 
@@ -103,7 +106,7 @@ Se conserva la licencia **[LGPL-3.0](LICENSE)**. Este fork reconoce el trabajo d
 
 **RyzeMCBE Development Studio** · Software e infraestructura para Minecraft Bedrock
 
-[Allay](https://github.com/RyzeMCBE/Allay) · [Protocol](https://github.com/RyzeMCBE/Protocol) · [StateUpdater](https://github.com/RyzeMCBE/StateUpdater)
+[Engine (repositorio actual)](https://github.com/RyzeMCBE/Allay) · [Protocol](https://github.com/RyzeMCBE/Protocol) · [StateUpdater](https://github.com/RyzeMCBE/StateUpdater)
 
 <sub>Proyecto independiente, sin afiliación con Mojang Studios ni Microsoft.</sub>
 
