@@ -44,6 +44,15 @@ jobs:
           chmod +x ./gradlew
           ./gradlew build --no-daemon
 
+      - name: Validar POMs Maven Central (sin publicar)
+        run: |
+          ./gradlew \
+            :common:generatePomFileForMavenPublication \
+            :block-updater:generatePomFileForMavenPublication \
+            :item-updater:generatePomFileForMavenPublication \
+            -PcentralRelease=true --no-daemon
+          python3 .github/scripts/verify-central-poms.py
+
       - name: Guardar JAR de StateUpdater
         if: success()
         uses: actions/upload-artifact@v7
