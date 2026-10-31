@@ -41,3 +41,12 @@ y clave GPG fuera del repositorio, y ejecutar:
 Completar la aprobación manual en
 https://central.sonatype.com/publishing cuando el deployment sea
 **VALIDATED**. No ejecutar antes de cerrar el control de dependencias.
+
+## Auditoría de dependencias directas
+
+El CI ejecuta `.github/scripts/audit-central-resolution.py` contra los tres
+POM de publicación: las dependencias externas directas están accesibles
+en Maven Central, y el módulo `common` se trata como publicación de
+primer nivel pendiente, no como dependencia de terceros. Esto **no**
+sustituye una prueba de resolución transitiva completa desde un consumidor
+que use exclusivamente `mavenCentral()` después de publicar.
