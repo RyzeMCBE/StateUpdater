@@ -52,6 +52,11 @@ jobs:
             :item-updater:generatePomFileForMavenPublication \
             -PcentralRelease=true --no-daemon
           python3 .github/scripts/verify-central-poms.py
+          python3 .github/scripts/audit-central-resolution.py \
+            --pending io.github.ryzemcbe:common:0.1.1 \
+            common/build/publications/maven/pom-default.xml \
+            block-updater/build/publications/maven/pom-default.xml \
+            item-updater/build/publications/maven/pom-default.xml
 
       - name: Guardar JAR de StateUpdater
         if: success()
