@@ -11,8 +11,13 @@ subprojects {
     apply(plugin = "java-library")
     apply(plugin = "com.vanniktech.maven.publish")
 
-    group = "org.allaymc.stateupdater"
-    project.version = rootProject.property(project.name + ".version").toString()
+    // Opt in to a stable Central release; preserve existing development coordinates.
+    val centralRelease = providers.gradleProperty("centralRelease")
+        .map(String::toBoolean).getOrElse(false)
+    group = if (centralRelease) "io.github.ryzemcbe" else "org.allaymc.stateupdater"
+    project.version = rootProject.property(project.name + ".version").toString().let {
+        if (centralRelease) it.removeSuffix("-SNAPSHOT") else it
+    }
 
     val minifyJsonTask by tasks.registering {
         dependsOn(tasks.processResources)
