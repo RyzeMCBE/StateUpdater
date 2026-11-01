@@ -50,3 +50,30 @@ en Maven Central, y el módulo `common` se trata como publicación de
 primer nivel pendiente, no como dependencia de terceros. Esto **no**
 sustituye una prueba de resolución transitiva completa desde un consumidor
 que use exclusivamente `mavenCentral()` después de publicar.
+
+## Verificación segura de la firma desde GitHub Actions
+
+El workflow `.github/workflows/verify-maven-central-signing.yml` permite
+probar **únicamente** firmas (NO publica ni necesita token Sonatype).
+
+1. En GitHub Settings > Environments, el entorno `maven-central` debe
+   permitir exclusivamente la rama `main`.
+2. Configurar `GPG_PRIVATE_KEY` y `GPG_PASSPHRASE` como **environment
+   secrets**, no variables públicas ni archivos de código.
+3. Revisar y fusionar este PR en `main` cuando esté aprobado. GitHub
+   muestra workflows manuales desde la rama por defecto.
+4. En Actions > «Maven Central - Verify GPG signatures (NO PUBLISH)» >
+   «Run workflow» > seleccionar `main` y ejecutar.
+5. Aprobar el environment si hay `Required reviewers`.
+6. Confirmar en el job que se compilan los módulos, se verifican los POM,
+   se auditan las dependencias directas y aparecen firmas `.asc` para los
+   tres módulos.
+
+Separa la fase de firma de la publicación para evitar deploys accidentales.
+Las claves de Sonatype `MAVEN_CENTRAL_USERNAME` y
+`MAVEN_CENTRAL_PASSWORD` quedan disponibles para un workflow de publicación
+posterior, que debe protegerse y habilitarse **solo** cuando todas las
+dependencias, licencias, Javadoc y pruebas estén verificadas.
+No incluir `publishToMavenCentral` ni `publishAndReleaseToMavenCentral`
+en el workflow de verificación de firma.
+
