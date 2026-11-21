@@ -194,6 +194,54 @@ class BlockStateUpdaterTest {
         assertEquals(2, updated.getCompound("states").getInt("minecraft:vertical_half"));
     }
 
+    /**
+     * Cross-server palettes can keep the pre-1.13 direction property even
+     * after log was split into per-species identifiers.
+     */
+    @Test
+    void testLegacyLogDirectionConversionAndUnknownPreservation() {
+        var axes = new String[]{"y", "x", "z"};
+        for (int direction = 0; direction < 3; direction++) {
+            var legacy = NbtMap.builder()
+                    .putString("name", "minecraft:log")
+                    .putCompound("states", NbtMap.builder()
+                            .putString("old_log_type", "oak")
+                            .putString("direction", String.valueOf(direction)).build())
+                    .build();
+            var updated = BlockStateUpdaters.updateBlockState(legacy, BlockStateUpdaters.LATEST_VERSION);
+            assertEquals("minecraft:oak_log", updated.getString("name"));
+            assertEquals(axes[direction], updated.getCompound("states").getString("pillar_axis"));
+            assertFalse(updated.getCompound("states").containsKey("direction"));
+        }
+
+        var partial = NbtMap.builder()
+                .putString("name", "minecraft:stripped_dark_oak_log")
+                .putCompound("states", NbtMap.builder().putInt("direction", 2).build())
+                .build();
+        var updatedPartial = BlockStateUpdaters.updateBlockState(partial, BlockStateUpdaters.LATEST_VERSION);
+        assertEquals("minecraft:stripped_dark_oak_log", updatedPartial.getString("name"));
+        assertEquals("z", updatedPartial.getCompound("states").getString("pillar_axis"));
+        assertFalse(updatedPartial.getCompound("states").containsKey("direction"));
+
+        var bark = NbtMap.builder().putString("name", "minecraft:oak_log")
+                .putCompound("states", NbtMap.builder().putInt("direction", 3).build()).build();
+        var updatedBark = BlockStateUpdaters.updateBlockState(bark, BlockStateUpdaters.LATEST_VERSION);
+        assertEquals("minecraft:oak_wood", updatedBark.getString("name"));
+        assertEquals("y", updatedBark.getCompound("states").getString("pillar_axis"));
+
+        var invalid = NbtMap.builder().putString("name", "minecraft:oak_log")
+                .putCompound("states", NbtMap.builder().putInt("direction", 8).build()).build();
+        var updatedInvalid = BlockStateUpdaters.updateBlockState(invalid, BlockStateUpdaters.LATEST_VERSION);
+        assertEquals(8, updatedInvalid.getCompound("states").getInt("direction"));
+
+        var conflicting = NbtMap.builder().putString("name", "minecraft:oak_log")
+                .putCompound("states", NbtMap.builder().putInt("direction", 1)
+                        .putString("pillar_axis", "z").build()).build();
+        var updatedConflicting = BlockStateUpdaters.updateBlockState(conflicting, BlockStateUpdaters.LATEST_VERSION);
+        assertEquals(1, updatedConflicting.getCompound("states").getInt("direction"));
+        assertEquals("z", updatedConflicting.getCompound("states").getString("pillar_axis"));
+    }
+
     @Test
     void testRequiredVersionUpdater() {
         var creakingHeart0 = BlockStateUpdaters.updateBlockState(
