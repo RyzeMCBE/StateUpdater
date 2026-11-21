@@ -64,6 +64,68 @@ public class BlockStateUpdaters {
         LATEST_VERSION = context.getLatestVersion();
     }
 
+
+    /**
+     * Some imported worlds contain a mixture of old log properties and the new split
+     * identifiers (for example oak_log with direction instead of pillar_axis).
+     * Decode only known legacy directions; leave unknown/conflicting values untouched
+     * so Engine can preserve the original block NBT instead of guessing an axis.
+     */
+    private static NbtMap normalizeLegacyLogDirection(NbtMap tag) {
+        String name = tag.getString("name");
+        if (!isLegacyLogType(name)) return tag;
+        var states = tag.getCompound("states");
+        Object direction = states.get("direction");
+        if (direction == null) return tag;
+
+        String axis = null;
+        if (direction instanceof Number number) {
+            int value = number.intValue();
+            if (number.doubleValue() == value) {
+                axis = switch (value) {
+                    case 0, 3 -> "y";
+                    case 1 -> "x";
+                    case 2 -> "z";
+                    default -> null;
+                };
+            }
+        } else if (direction instanceof String value) {
+            axis = switch (value) {
+                case "0", "3", "y" -> "y";
+                case "1", "x" -> "x";
+                case "2", "z" -> "z";
+                default -> null;
+            };
+        }
+        if (axis == null) return tag;
+
+        Object existingAxis = states.get("pillar_axis");
+        if (existingAxis != null && !axis.equals(existingAxis)) return tag;
+
+        var builder = states.toBuilder();
+        builder.remove("direction");
+        builder.putString("pillar_axis", axis);
+        // Legacy direction=3 denotes the all-bark wood variant, not a vertical log.
+        boolean bark = direction instanceof Number number && number.doubleValue() == 3 ||
+                direction instanceof String value && value.equals("3");
+        if (bark && name.endsWith("_log")) {
+            name = name.substring(0, name.length() - "_log".length()) + "_wood";
+        }
+        return tag.toBuilder().putString("name", name).putCompound("states", builder.build()).build();
+    }
+
+    private static boolean isLegacyLogType(String name) {
+        if (!name.startsWith("minecraft:")) return false;
+        String path = name.substring("minecraft:".length());
+        if (path.startsWith("stripped_")) path = path.substring("stripped_".length());
+        if (!path.endsWith("_log") && !path.endsWith("_wood")) return false;
+        String wood = path.substring(0, path.lastIndexOf('_'));
+        return switch (wood) {
+            case "oak", "spruce", "birch", "jungle", "acacia", "dark_oak" -> true;
+            default -> false;
+        };
+    }
+
     public static NbtMap updateBlockState(NbtMap tag, int updateToVersion) {
         var validTagBuilder = NbtMap.builder();
         validTagBuilder.putString("name", tag.getString("name"));
@@ -73,6 +135,6 @@ public class BlockStateUpdaters {
             validTagBuilder.putCompound("states", tag.getCompound("states"));
         }
 
-        return generateVersionFor(CONTEXT.updateStates(validTagBuilder.build(), updateToVersion));
+        return generateVersionFor(normalizeLegacyLogDirection(CONTEXT.updateStates(validTagBuilder.build(), updateToVersion)));
     }
 }
